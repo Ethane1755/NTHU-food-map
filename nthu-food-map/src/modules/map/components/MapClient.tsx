@@ -16,7 +16,7 @@ type LucideIconNode = [tag: string, attrs: Record<string, string | number | unde
 interface MapClientProps {
   stores: Store[];
   selectedStore: Store | null;
-  onStoreSelect: (store: Store) => void;
+  onStoreSelect: (store: Store | null) => void;
   area1Signal?: number;
 }
 
@@ -312,7 +312,7 @@ async function ensureStoreLayers(
       "circle-opacity": 0.62,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#eceff4",
-      "circle-radius": ["step", ["get", "point_count"], 36, 15, 42, 50, 48, 120, 56],
+      "circle-radius": ["step", ["get", "point_count"], 28, 15, 34, 50, 40, 120, 46],
     },
   });
 
@@ -324,7 +324,7 @@ async function ensureStoreLayers(
     layout: {
       "text-field": ["get", "point_count_abbreviated"],
       "text-font": ["Noto Sans Bold"],
-      "text-size": 18,
+      "text-size": 16,
     },
     paint: {
       "text-color": "#262a31",
@@ -337,7 +337,7 @@ async function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 44,
+      "circle-radius": 36,
       "circle-color": "#eceff4",
       "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.12, 0.25],
       "circle-blur": 0.8,
@@ -350,7 +350,7 @@ async function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 32,
+      "circle-radius": 26,
       "circle-stroke-width": 2.8,
       "circle-stroke-color": "#ffffff",
       "circle-color": [
@@ -418,7 +418,7 @@ async function ensureStoreLayers(
             "store-icon-meal",
             CATEGORY_ICON_FALLBACK,
           ],
-          "icon-size": 1.6,
+          "icon-size": 1.35,
           "icon-anchor": "center",
           "icon-offset": [0, 0],
           "icon-allow-overlap": true,
@@ -452,7 +452,7 @@ async function ensureStoreLayers(
             "🍽️",
             "🍽️",
           ],
-          "text-size": 32,
+          "text-size": 26,
           "text-anchor": "center",
           "text-offset": [0, 0],
           "text-allow-overlap": true,
@@ -634,6 +634,21 @@ export default function MapClient({
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
       map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
 
+      map.on("click", (e) => {
+        const layers = [STORE_LAYER_ID, STORE_PIN_ICON_LAYER_ID, CLUSTER_LAYER_ID].filter(
+          (id) => map.getLayer(id)
+        );
+        if (layers.length === 0) {
+          onStoreSelectRef.current(null);
+          return;
+        }
+
+        const features = map.queryRenderedFeatures(e.point, { layers });
+        if (features.length === 0) {
+          onStoreSelectRef.current(null);
+        }
+      });
+
       map.on("load", () => {
         void ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
           const store = storesByIdRef.current.get(storeId);
@@ -738,29 +753,18 @@ export default function MapClient({
         </div>
       )}
 
-      <div className="absolute right-4 top-4 z-[1110] flex justify-end" style={{ minWidth: "176px" }}>
-        {areaPanelCollapsed ? (
-          <div className="relative w-44">
-            <button
-              type="button"
-              onClick={() => setAreaPanelCollapsed(false)}
-              className="solid-light-btn absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/60 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/82 backdrop-blur-md"
-              aria-label="展開區域選擇"
-            >
-              <ChevronDown size={16} />
-            </button>
-          </div>
-        ) : (
-          <div className="relative w-44 rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/50 p-2 text-[var(--lavender)] shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md">
-            <button
-              type="button"
-              onClick={() => setAreaPanelCollapsed(true)}
-              className="solid-light-btn absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/60 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/82"
-              aria-label="收合區域選擇"
-            >
-              <ChevronUp size={16} />
-            </button>
+      <div className="absolute right-4 top-4 z-[1110]">
+        <div className={`relative w-44 transition-all duration-300 ${!areaPanelCollapsed ? "rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/50 p-2 shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md" : "border border-transparent p-2"}`}>
+          <button
+            type="button"
+            onClick={() => setAreaPanelCollapsed((v) => !v)}
+            className={`solid-light-btn absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/60 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/82 transition-colors ${areaPanelCollapsed ? "backdrop-blur-md" : ""}`}
+            aria-label={areaPanelCollapsed ? "展開區域選擇" : "收合區域選擇"}
+          >
+            {areaPanelCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          </button>
 
+          {!areaPanelCollapsed && (
             <div className="pt-11">
               <div className="mb-1 px-1">
                 <p className="text-sm font-semibold tracking-wide text-[var(--lavender)]/90">區域選擇</p>
@@ -784,8 +788,8 @@ export default function MapClient({
                 </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

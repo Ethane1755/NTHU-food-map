@@ -387,7 +387,7 @@ export default function StoreCard({ store, onClose, className = "" }: StoreCardP
                 const segments = getDaySegments(day);
                 return (
                   <div key={day} className="grid grid-cols-[40px_1fr] items-center gap-2 text-[11px]">
-                    <span className={`font-medium ${day === todayDay ? "text-[var(--burnt-peach)]" : "text-[var(--lavender)]/60"}`}>
+                    <span className={`font-medium ${day === todayDay ? "text-[#a3be8c]" : "text-[var(--lavender)]/60"}`}>
                       {day.slice(2)}
                     </span>
                     <div className="relative h-2 rounded-full bg-[var(--blue-slate)]/55 overflow-hidden">
@@ -410,7 +410,7 @@ export default function StoreCard({ store, onClose, className = "" }: StoreCardP
                               .toString()
                               .padStart(2, "0")}`}
                             className={`absolute top-0 h-full rounded-full ${
-                              day === todayDay ? "bg-[var(--burnt-peach)]" : "bg-[var(--lilac)]"
+                              day === todayDay ? "bg-[#a3be8c]" : "bg-[#bf616a]"
                             }`}
                             style={{ left: `${left}%`, width: `${width}%` }}
                           />
@@ -418,7 +418,7 @@ export default function StoreCard({ store, onClose, className = "" }: StoreCardP
                       })}
                       {day === todayDay && (
                         <span
-                          className="absolute w-2 h-2 rounded-full bg-[var(--platinum)] border border-[var(--burnt-peach)] shadow-[0_0_0_2px_rgba(208,135,112,0.35)]"
+                          className="absolute w-2 h-2 rounded-full bg-[#ffffff] border border-[#ffffff] shadow-[0_0_0_2px_rgba(255,255,255,0.35)]"
                           style={{ top: "50%", left: `${currentTimeDotLeft}%`, transform: "translate(-50%, -50%)" }}
                         />
                       )}

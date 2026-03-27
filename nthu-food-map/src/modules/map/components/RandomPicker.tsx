@@ -202,7 +202,10 @@ export default function RandomPicker({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowFilters((v) => !v)}
+              disabled={isPicking}
               className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                isPicking ? "opacity-50 cursor-not-allowed" : ""
+              } ${
                 showFilters || activeFilterCount > 0
                     ? "bg-[var(--lobster-pink)]/24 text-[var(--apricot-cream)]"
                     : "bg-[var(--jet-black)] text-[var(--lavender)] hover:bg-[var(--blue-slate)]"
@@ -236,7 +239,7 @@ export default function RandomPicker({
                     onClick={() => setFilterCategory(cat)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                       filterCategory === cat
-                        ? "bg-[var(--lilac)] text-[var(--platinum)]"
+                        ? "bg-[var(--lobster-pink)] text-[var(--platinum)] border border-[var(--lobster-pink)] border-opacity-60 scale-[1.02] drop-shadow-sm"
                         : "bg-[var(--jet-black)] border border-[var(--blue-slate)] text-[var(--lavender)] hover:border-[var(--burnt-peach)]"
                     }`}
                   >
@@ -256,7 +259,7 @@ export default function RandomPicker({
                     onClick={() => setFilterBudget(opt.value)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                       filterBudget === opt.value
-                        ? "bg-[var(--lilac)] text-[var(--platinum)]"
+                        ? "bg-[var(--lobster-pink)] text-[var(--platinum)] border border-[var(--lobster-pink)] border-opacity-60 scale-[1.02] drop-shadow-sm"
                         : "bg-[var(--jet-black)] border border-[var(--blue-slate)] text-[var(--lavender)] hover:border-[var(--burnt-peach)]"
                     }`}
                   >
@@ -289,7 +292,7 @@ export default function RandomPicker({
                     onClick={() => setFilterDistance(opt.value)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                       filterDistance === opt.value
-                        ? "bg-[var(--lilac)] text-[var(--platinum)]"
+                        ? "bg-[var(--lobster-pink)] text-[var(--platinum)] border border-[var(--lobster-pink)] border-opacity-60 scale-[1.02] drop-shadow-sm"
                         : "bg-[var(--jet-black)] border border-[var(--blue-slate)] text-[var(--lavender)] hover:border-[var(--burnt-peach)]"
                     }`}
                   >
@@ -313,7 +316,7 @@ export default function RandomPicker({
                     onClick={() => setFilterPeople(opt.value)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                       filterPeople === opt.value
-                        ? "bg-[var(--lilac)] text-[var(--platinum)]"
+                        ? "bg-[var(--lobster-pink)] text-[var(--platinum)] border border-[var(--lobster-pink)] border-opacity-60 scale-[1.02] drop-shadow-sm"
                         : "bg-[var(--jet-black)] border border-[var(--blue-slate)] text-[var(--lavender)] hover:border-[var(--burnt-peach)]"
                     }`}
                   >
@@ -331,7 +334,7 @@ export default function RandomPicker({
                 onClick={() => setOnlyOpenNow((v) => !v)}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                   onlyOpenNow
-                    ? "bg-[var(--muted-olive)] text-[var(--jet-black)]"
+                    ? "bg-[var(--muted-olive)] text-[var(--jet-black)] border border-[var(--muted-olive)] border-opacity-60 scale-[1.02] drop-shadow-sm"
                     : "bg-[var(--jet-black)] border border-[var(--blue-slate)] text-[var(--lavender)] hover:border-[var(--muted-olive)]"
                 }`}
               >
@@ -406,7 +409,7 @@ export default function RandomPicker({
 
             {picked && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="bg-[var(--muted-olive)] text-[var(--jet-black)] text-xs font-bold px-3 py-1 rounded-full shadow">
+                <span className="bg-[var(--muted-olive)] text-[var(--jet-black)] border border-[var(--muted-olive)] border-opacity-60 scale-[1.02] drop-shadow-sm text-xs font-bold px-3 py-1 rounded-full shadow">
                   就決定是你了！
                 </span>
               </div>
