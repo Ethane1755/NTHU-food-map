@@ -77,16 +77,26 @@ async function loadMapImage(map: maplibregl.Map, svgContent: string): Promise<HT
   return response.data;
 }
 
-async function ensureCategoryPinIcons(map: maplibregl.Map) {
-  if (map.getImage(CATEGORY_ICON_FALLBACK)) return;
+async function ensureCategoryPinIcons(map: maplibregl.Map): Promise<boolean> {
+  try {
+    if (map.getImage(CATEGORY_ICON_FALLBACK)) return true;
 
-  const stroke = "#f8fafc";
-  const fallbackImage = await loadMapImage(map, buildIconSvg(UtensilsCrossed, stroke));
-  map.addImage(CATEGORY_ICON_FALLBACK, fallbackImage);
+    const stroke = "#f8fafc";
+    const fallbackImage = await loadMapImage(map, buildIconSvg(UtensilsCrossed, stroke));
+    if (!map.getImage(CATEGORY_ICON_FALLBACK)) {
+      map.addImage(CATEGORY_ICON_FALLBACK, fallbackImage);
+    }
 
-  for (const item of CATEGORY_ICON_CONFIG) {
-    const image = await loadMapImage(map, buildIconSvg(item.icon, stroke));
-    map.addImage(item.id, image);
+    for (const item of CATEGORY_ICON_CONFIG) {
+      if (map.getImage(item.id)) continue;
+      const image = await loadMapImage(map, buildIconSvg(item.icon, stroke));
+      map.addImage(item.id, image);
+    }
+
+    return true;
+  } catch (error) {
+    console.warn("[MapClient] category icon sprite failed, using text fallback", error);
+    return false;
   }
 }
 
@@ -275,7 +285,7 @@ async function ensureStoreLayers(
     return;
   }
 
-  await ensureCategoryPinIcons(map);
+  const categoryIconsReady = await ensureCategoryPinIcons(map);
 
   map.addSource(STORE_SOURCE_ID, {
     type: "geojson",
@@ -373,41 +383,79 @@ async function ensureStoreLayers(
     type: "symbol",
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
-    layout: {
-      "icon-image": [
-        "match",
-        ["get", "category"],
-        "早餐",
-        "store-icon-breakfast",
-        "飲料",
-        "store-icon-drink",
-        "甜點",
-        "store-icon-dessert",
-        "素食",
-        "store-icon-vegan",
-        "宵夜",
-        "store-icon-night",
-        "麵食",
-        "store-icon-noodle",
-        "日式",
-        "store-icon-japanese",
-        "中式",
-        "store-icon-main",
-        "便當",
-        "store-icon-bento",
-        "小吃",
-        "store-icon-snack",
-        "正餐",
-        "store-icon-meal",
-        CATEGORY_ICON_FALLBACK,
-      ],
-      "icon-size": 0.8,
-      "icon-allow-overlap": true,
-      "icon-ignore-placement": true,
-    },
-    paint: {
-      "icon-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.65, 0.98],
-    },
+    layout: categoryIconsReady
+      ? {
+          "icon-image": [
+            "match",
+            ["get", "category"],
+            "早餐",
+            "store-icon-breakfast",
+            "飲料",
+            "store-icon-drink",
+            "甜點",
+            "store-icon-dessert",
+            "素食",
+            "store-icon-vegan",
+            "宵夜",
+            "store-icon-night",
+            "麵食",
+            "store-icon-noodle",
+            "日式",
+            "store-icon-japanese",
+            "中式",
+            "store-icon-main",
+            "便當",
+            "store-icon-bento",
+            "小吃",
+            "store-icon-snack",
+            "正餐",
+            "store-icon-meal",
+            CATEGORY_ICON_FALLBACK,
+          ],
+          "icon-size": 0.8,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        }
+      : {
+          "text-field": [
+            "match",
+            ["get", "category"],
+            "早餐",
+            "🍳",
+            "飲料",
+            "🧋",
+            "甜點",
+            "🍰",
+            "素食",
+            "🥗",
+            "宵夜",
+            "🌙",
+            "麵食",
+            "🍜",
+            "日式",
+            "🍱",
+            "中式",
+            "🥢",
+            "便當",
+            "🥡",
+            "小吃",
+            "🍢",
+            "正餐",
+            "🍽️",
+            "🍽️",
+          ],
+          "text-size": 16,
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+    paint: categoryIconsReady
+      ? {
+          "icon-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.65, 0.98],
+        }
+      : {
+          "text-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.58, 0.95],
+          "text-color": "#f8fafc",
+        },
   });
 
   const handleStoreClick = (event: maplibregl.MapLayerMouseEvent) => {
