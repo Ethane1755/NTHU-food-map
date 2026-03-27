@@ -25,6 +25,21 @@ export function getPriceLabel(price_range?: number): string {
   return "$".repeat(price_range);
 }
 
+export function getStoreImageSrc(imageUrl?: string): string | undefined {
+  const raw = imageUrl?.trim();
+  if (!raw) return undefined;
+
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return undefined;
+    }
+    return `/api/image-proxy?url=${encodeURIComponent(parsed.toString())}`;
+  } catch {
+    return undefined;
+  }
+}
+
 export const CATEGORIES: Category[] = [
   "中式",
   "早餐",

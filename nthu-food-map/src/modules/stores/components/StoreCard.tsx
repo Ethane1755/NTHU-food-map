@@ -6,6 +6,7 @@ import {
   getCategoryEmoji,
   getCurrentWeekdayZh,
   getPriceLabel,
+  getStoreImageSrc,
   isStoreOpenNow,
   parseStoreOpeningHours,
   WEEK_DAYS_ZH,
@@ -77,7 +78,8 @@ export default function StoreCard({ store, onClose, className = "" }: StoreCardP
   const currentMinute = now.getHours() * 60 + now.getMinutes();
   const currentTimeDotLeft = Math.max(0, Math.min(100, (currentMinute / (24 * 60)) * 100));
   const imageKey = `${store.id}:${store.image_url ?? ""}`;
-  const showImage = Boolean(store.image_url) && !failedImageKeys[imageKey];
+  const imageSrc = getStoreImageSrc(store.image_url);
+  const showImage = Boolean(imageSrc) && !failedImageKeys[imageKey];
   const firstComment = comments[0] ?? null;
 
   const getDaySegments = (day: (typeof WEEK_DAYS_ZH)[number]) => {
@@ -295,7 +297,7 @@ export default function StoreCard({ store, onClose, className = "" }: StoreCardP
             {showImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={store.image_url}
+                src={imageSrc}
                 alt={store.name}
                 loading="lazy"
                 decoding="async"

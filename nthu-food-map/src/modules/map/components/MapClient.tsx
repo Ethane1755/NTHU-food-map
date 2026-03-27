@@ -4,11 +4,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, LocateFixed } from "lucide-react";
 import type { FeatureCollection, Point } from "geojson";
 import type * as maplibregl from "maplibre-gl";
+import { Beef, Coffee, CupSoda, IceCreamBowl, Leaf, MoonStar, Sandwich, Soup, UtensilsCrossed } from "lucide";
 import type { Store } from "@/modules/shared/types";
 import { isStoreOpenNow } from "@/modules/shared/lib/utils";
 
 const maplibreModulePromise = import("maplibre-gl");
 const pmtilesModulePromise = import("pmtiles");
+
+type LucideIconNode = [tag: string, attrs: Record<string, string | number | undefined>][];
 
 interface MapClientProps {
   stores: Store[];
@@ -24,8 +27,8 @@ type StoreProperties = {
 };
 
 const UNIFIED_FLYTO_ZOOM = 17;
-const AREA_1_CENTER: [number, number] = [24.797725784185676, 120.99771371419024];
-const AREA_2_CENTER: [number, number] = [24.792979725489644, 120.99379987883572];
+const AREA_1_CENTER: [number, number] = [120.99771371419024, 24.797725784185676];
+const AREA_2_CENTER: [number, number] = [120.99379987883572, 24.792979725489644];
 const AREA_FOCUS_ZOOM = 17;
 const STORE_SOURCE_ID = "stores-source";
 const CLUSTER_LAYER_ID = "stores-clusters";
@@ -33,9 +36,59 @@ const CLUSTER_COUNT_LAYER_ID = "stores-cluster-count";
 const STORE_HALO_LAYER_ID = "stores-halo";
 const STORE_LAYER_ID = "stores-unclustered";
 const STORE_PIN_ICON_LAYER_ID = "stores-pin-icon";
+const CATEGORY_ICON_FALLBACK = "store-icon-default";
 const PMTILES_STYLE_LIGHT = process.env.NEXT_PUBLIC_MAP_STYLE_LIGHT_URL?.trim();
 const PMTILES_STYLE_DARK = process.env.NEXT_PUBLIC_MAP_STYLE_DARK_URL?.trim();
 const PMTILES_URL = process.env.NEXT_PUBLIC_PM_TILES_URL?.trim();
+
+const MAP_DEFAULT_BOUNDS: [number, number, number, number] = [120.975, 24.781, 121.03, 24.815];
+
+const CATEGORY_ICON_CONFIG: Array<{ category: string; id: string; icon: LucideIconNode }> = [
+  { category: "早餐", id: "store-icon-breakfast", icon: Sandwich },
+  { category: "飲料", id: "store-icon-drink", icon: CupSoda },
+  { category: "甜點", id: "store-icon-dessert", icon: IceCreamBowl },
+  { category: "素食", id: "store-icon-vegan", icon: Leaf },
+  { category: "宵夜", id: "store-icon-night", icon: MoonStar },
+  { category: "麵食", id: "store-icon-noodle", icon: Soup },
+  { category: "日式", id: "store-icon-japanese", icon: Beef },
+  { category: "中式", id: "store-icon-main", icon: UtensilsCrossed },
+  { category: "便當", id: "store-icon-bento", icon: UtensilsCrossed },
+  { category: "小吃", id: "store-icon-snack", icon: Coffee },
+  { category: "正餐", id: "store-icon-meal", icon: UtensilsCrossed },
+];
+
+function buildIconSvg(iconNode: LucideIconNode, stroke: string): string {
+  const children = iconNode
+    .map(([tag, attrs]) => {
+      const attrsText = Object.entries(attrs)
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => `${key}="${String(value)}"`)
+        .join(" ");
+      return `<${tag} ${attrsText} />`;
+    })
+    .join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${children}</svg>`;
+}
+
+async function loadMapImage(map: maplibregl.Map, svgContent: string): Promise<HTMLImageElement | ImageBitmap> {
+  const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgContent)}`;
+  const response = await map.loadImage(dataUrl);
+  return response.data;
+}
+
+async function ensureCategoryPinIcons(map: maplibregl.Map) {
+  if (map.getImage(CATEGORY_ICON_FALLBACK)) return;
+
+  const stroke = "#f8fafc";
+  const fallbackImage = await loadMapImage(map, buildIconSvg(UtensilsCrossed, stroke));
+  map.addImage(CATEGORY_ICON_FALLBACK, fallbackImage);
+
+  for (const item of CATEGORY_ICON_CONFIG) {
+    const image = await loadMapImage(map, buildIconSvg(item.icon, stroke));
+    map.addImage(item.id, image);
+  }
+}
 
 function buildRasterFallbackStyle(isLightMode: boolean): maplibregl.StyleSpecification {
   const tileUrl = isLightMode
@@ -112,41 +165,41 @@ function buildPmtilesFallbackStyle(isLightMode: boolean): maplibregl.StyleSpecif
         type: "line",
         source: "nthu_pmtiles",
         "source-layer": "streets",
-        minzoom: 12,
+        minzoom: 11,
         paint: {
           "line-color": isLightMode ? "#8ea7c2" : "#7089a1",
-          "line-opacity": isLightMode ? 0.42 : 0.38,
+          "line-opacity": isLightMode ? 0.48 : 0.44,
           "line-width": [
             "interpolate",
             ["linear"],
             ["zoom"],
-            10,
+            9,
             [
               "match",
               ["get", "kind"],
               ["motorway", "trunk", "primary"],
-              0.6,
+              0.85,
               ["secondary", "tertiary"],
-              0.45,
+              0.65,
               ["residential", "living_street", "service"],
-              0.3,
+              0.42,
               ["pedestrian", "footway", "path", "steps", "cycleway"],
-              0.16,
-              0.22,
+              0.24,
+              0.32,
             ],
             18,
             [
               "match",
               ["get", "kind"],
               ["motorway", "trunk", "primary"],
-              2.2,
+              3.2,
               ["secondary", "tertiary"],
-              1.6,
+              2.4,
               ["residential", "living_street", "service"],
-              1.1,
+              1.8,
               ["pedestrian", "footway", "path", "steps", "cycleway"],
-              0.6,
-              0.9,
+              1.0,
+              1.35,
             ],
           ],
         },
@@ -211,7 +264,7 @@ function resolveMapStyle(isLightMode: boolean): string | maplibregl.StyleSpecifi
   return buildRasterFallbackStyle(isLightMode);
 }
 
-function ensureStoreLayers(
+async function ensureStoreLayers(
   map: maplibregl.Map,
   data: FeatureCollection<Point, StoreProperties>,
   onStoreSelect: (storeId: string) => void
@@ -221,6 +274,8 @@ function ensureStoreLayers(
     existing.setData(data);
     return;
   }
+
+  await ensureCategoryPinIcons(map);
 
   map.addSource(STORE_SOURCE_ID, {
     type: "geojson",
@@ -266,7 +321,7 @@ function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 19,
+      "circle-radius": 22,
       "circle-color": "#eceff4",
       "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.12, 0.25],
       "circle-blur": 0.8,
@@ -279,7 +334,7 @@ function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 14,
+      "circle-radius": 16,
       "circle-stroke-width": 2.4,
       "circle-stroke-color": "#ffffff",
       "circle-color": [
@@ -319,13 +374,39 @@ function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     layout: {
-      "text-field": "📍",
-      "text-size": 17,
-      "text-allow-overlap": true,
-      "text-ignore-placement": true,
+      "icon-image": [
+        "match",
+        ["get", "category"],
+        "早餐",
+        "store-icon-breakfast",
+        "飲料",
+        "store-icon-drink",
+        "甜點",
+        "store-icon-dessert",
+        "素食",
+        "store-icon-vegan",
+        "宵夜",
+        "store-icon-night",
+        "麵食",
+        "store-icon-noodle",
+        "日式",
+        "store-icon-japanese",
+        "中式",
+        "store-icon-main",
+        "便當",
+        "store-icon-bento",
+        "小吃",
+        "store-icon-snack",
+        "正餐",
+        "store-icon-meal",
+        CATEGORY_ICON_FALLBACK,
+      ],
+      "icon-size": 0.8,
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
     },
     paint: {
-      "text-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.55, 0.95],
+      "icon-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.65, 0.98],
     },
   });
 
@@ -475,9 +556,15 @@ export default function MapClient({
         style: resolveMapStyle(document.documentElement.classList.contains("theme-light")),
         center: [120.9964, 24.7963],
         zoom: 14.6,
+        minZoom: 13,
         maxZoom: 20,
         fadeDuration: 0,
         refreshExpiredTiles: false,
+        renderWorldCopies: false,
+        maxBounds: [
+          [MAP_DEFAULT_BOUNDS[0], MAP_DEFAULT_BOUNDS[1]],
+          [MAP_DEFAULT_BOUNDS[2], MAP_DEFAULT_BOUNDS[3]],
+        ],
       });
 
       if (destroyed) {
@@ -490,7 +577,16 @@ export default function MapClient({
       map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
 
       map.on("load", () => {
-        ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
+        void ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
+          const store = storesByIdRef.current.get(storeId);
+          if (store) {
+            onStoreSelectRef.current(store);
+          }
+        });
+      });
+
+      map.on("style.load", () => {
+        void ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
           const store = storesByIdRef.current.get(storeId);
           if (store) {
             onStoreSelectRef.current(store);
@@ -519,7 +615,7 @@ export default function MapClient({
     if (!map) return;
 
     const updateLayers = () => {
-      ensureStoreLayers(map, storeGeojson, (storeId) => {
+      void ensureStoreLayers(map, storeGeojson, (storeId) => {
         const store = storesByIdRef.current.get(storeId);
         if (store) {
           onStoreSelectRef.current(store);
@@ -543,7 +639,7 @@ export default function MapClient({
     map.setStyle(nextStyle);
 
     const onStyleReady = () => {
-      ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
+      void ensureStoreLayers(map, storeGeojsonRef.current, (storeId) => {
         const store = storesByIdRef.current.get(storeId);
         if (store) {
           onStoreSelectRef.current(store);
@@ -552,7 +648,7 @@ export default function MapClient({
     };
 
     map.once("style.load", onStyleReady);
-  }, [isLightMode, storeGeojson]);
+  }, [isLightMode]);
 
   useEffect(() => {
     if (area1Signal === 0 || !mapInstanceRef.current) return;

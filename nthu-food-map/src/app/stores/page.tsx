@@ -9,6 +9,7 @@ import {
   CATEGORIES,
   getCategoryEmoji,
   getPriceLabel,
+  getStoreImageSrc,
 } from "@/modules/shared";
 
 export default function StoresPage() {
@@ -102,17 +103,19 @@ export default function StoresPage() {
               <p>找不到符合的餐廳</p>
             </div>
           )}
-          {filtered.map((store) => (
+          {filtered.map((store) => {
+            const imageSrc = getStoreImageSrc(store.image_url);
+            return (
             <div
               key={store.id}
               className="overflow-hidden rounded-2xl border border-[var(--blue-slate)] bg-[var(--jet-black)] shadow-[0_12px_28px_rgba(38,42,49,0.32)]"
             >
               <div className="flex h-full flex-col">
                 <div className="relative h-40 w-full border-b border-[var(--blue-slate)] bg-[var(--charcoal-blue)]/55 sm:h-44">
-                  {store.image_url ? (
+                  {imageSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={store.image_url}
+                      src={imageSrc}
                       alt={store.name}
                       loading="lazy"
                       decoding="async"
@@ -173,7 +176,8 @@ export default function StoresPage() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

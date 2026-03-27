@@ -59,41 +59,41 @@
       "type": "line",
       "source": "nthu_pmtiles",
       "source-layer": "streets",
-      "minzoom": 12,
+      "minzoom": 11,
       "paint": {
         "line-color": "#8ea7c2",
-        "line-opacity": 0.42,
+        "line-opacity": 0.48,
         "line-width": [
           "interpolate",
           ["linear"],
           ["zoom"],
-          10,
+          9,
           [
             "match",
             ["get", "kind"],
             ["motorway", "trunk", "primary"],
-            0.6,
+            0.85,
             ["secondary", "tertiary"],
-            0.45,
+            0.65,
             ["residential", "living_street", "service"],
-            0.3,
+            0.42,
             ["pedestrian", "footway", "path", "steps", "cycleway"],
-            0.16,
-            0.22
+            0.24,
+            0.32
           ],
           18,
           [
             "match",
             ["get", "kind"],
             ["motorway", "trunk", "primary"],
-            2.2,
+            3.2,
             ["secondary", "tertiary"],
-            1.6,
+            2.4,
             ["residential", "living_street", "service"],
-            1.1,
+            1.8,
             ["pedestrian", "footway", "path", "steps", "cycleway"],
-            0.6,
-            0.9
+            1,
+            1.35
           ]
         ]
       }
