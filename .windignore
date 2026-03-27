@@ -1,0 +1,24 @@
+# 絕對禁止 Windsurf 讀取的目錄 (Token 黑洞)
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# 鎖定檔 (通常非常巨大且無閱讀價值)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 環境變數與日誌
+.env
+.env.local
+*.log
+
+# 其他無關開發的媒體檔 (避免轉碼成 Base64 狂耗 Token)
+public/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4

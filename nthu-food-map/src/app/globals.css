@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+:root {
+  --jet-black: #262a31ff;
+  --charcoal-blue: #3b4252ff;
+  --charcoal-blue-2: #434c5eff;
+  --blue-slate: #4c566aff;
+  --lavender: #d8dee9ff;
+  --alice-blue: #e5e9f0ff;
+  --platinum: #eceff4ff;
+  --lobster-pink: #bf616aff;
+  --burnt-peach: #d08770ff;
+  --apricot-cream: #ebcb8bff;
+  --muted-olive: #a3be8cff;
+  --lilac: #b48eadff;
+
+  --background: var(--jet-black);
+  --foreground: var(--lavender);
+}
+
+html.theme-light {
+  --jet-black: #f6f8fbff;
+  --charcoal-blue: #ffffffff;
+  --charcoal-blue-2: #edf1f7ff;
+  --blue-slate: #7a869bff;
+  --lavender: #505b70ff;
+  --alice-blue: #2f3746ff;
+  --platinum: #1f2530ff;
+  --lobster-pink: #bf616aff;
+  --burnt-peach: #d08770ff;
+  /* Increase yellow/green contrast on bright surfaces while keeping Nord character. */
+  --apricot-cream: #9a6b2fff;
+  --muted-olive: #5f7f46ff;
+  --lilac: #b48eadff;
+
+  --background: var(--jet-black);
+  --foreground: var(--lavender);
+}
+
+html.theme-light button {
+  background: transparent !important;
+  color: var(--alice-blue) !important;
+  border: 1px solid color-mix(in srgb, var(--blue-slate) 70%, transparent) !important;
+  box-shadow: none !important;
+}
+
+html.theme-light button:hover {
+  background: color-mix(in srgb, var(--charcoal-blue-2) 45%, transparent) !important;
+}
+
+html.theme-light button:disabled {
+  opacity: 0.55;
+}
+
+html.theme-light button.star-plain {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light button.no-outline-btn {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html.theme-light button.solid-light-btn {
+  background: color-mix(in srgb, var(--charcoal-blue) 92%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--blue-slate) 80%, transparent) !important;
+  color: var(--alice-blue) !important;
+  box-shadow: 0 8px 18px rgba(38, 42, 49, 0.22) !important;
+}
+
+html.theme-light button.solid-light-btn:hover {
+  background: color-mix(in srgb, var(--charcoal-blue-2) 86%, transparent) !important;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input,
+textarea,
+select {
+  color: var(--alice-blue);
+  background: var(--charcoal-blue);
+  border-color: var(--blue-slate);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--lavender) 56%, transparent);
+  opacity: 1;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--lilac) 45%, transparent);
+  color: var(--platinum);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

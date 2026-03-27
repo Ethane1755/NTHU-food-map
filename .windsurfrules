@@ -1,0 +1,19 @@
+# 專案 Vibe 與 Context 管理規則
+
+## 1. 核心技術棧
+- 框架：Next.js (App Router), React, TypeScript
+- 樣式：Tailwind CSS (偏好 Dark Mode, Glassmorphism 風格)
+- 圖示與動畫：Lucide React, Framer Motion
+
+## 2. Token 優化與防燒錢機制 (Strict Context)
+- 絕對不要讀取整個 Codebase。只讀取我 Prompt 中明確 Tag (`@`) 的檔案，或是與目前修改的 Component 直接相關的檔案。
+- 回覆時，只要輸出「修改過」的程式碼區塊。不要重新印出整份檔案，也不要解釋程式碼的運作原理，除非我主動詢問。
+- 如果發現缺少某個 Interface 或 Type 定義，請直接問我，不要盲目猜測或從沒看過的檔案中通靈。
+
+## 3. 開發風格 (Vibe)
+- 保持 Component 輕量化與模組化。
+- UI 互動需具備「Snappy」的流暢感，按鈕要有適當的 Hover 效果與過渡動畫 (transition)。
+- 優先使用 Tailwind 原生 Utility Classes，不引入龐大的第三方 UI 庫 (如 Shadcn UI)，除非明確要求。
+
+## 4. 系統指令 (Caching)
+- 永遠將此 `.windsurfrules` 檔案、`globals.css` 以及 `tailwind.config.ts` 視為靜態的背景 Context，以最大化 Prompt Caching 的命中率。

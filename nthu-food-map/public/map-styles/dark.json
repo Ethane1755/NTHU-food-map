@@ -1,0 +1,99 @@
+{
+  "version": 8,
+  "name": "NTHU Dark",
+  "glyphs": "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  "sources": {
+    "nthu_pmtiles": {
+      "type": "vector",
+      "url": "pmtiles://https://pub-4963b184f4ff42f3ad5b1b7fa02dd8b4.r2.dev/planet_120.312,24.178_121.624,25.418.pmtiles"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#262a31"
+      }
+    },
+    {
+      "id": "land",
+      "type": "fill",
+      "source": "nthu_pmtiles",
+      "source-layer": "land",
+      "paint": {
+        "fill-color": "#2f3640"
+      }
+    },
+    {
+      "id": "ocean",
+      "type": "fill",
+      "source": "nthu_pmtiles",
+      "source-layer": "ocean",
+      "paint": {
+        "fill-color": "#20384d"
+      }
+    },
+    {
+      "id": "water-polygons",
+      "type": "fill",
+      "source": "nthu_pmtiles",
+      "source-layer": "water_polygons",
+      "paint": {
+        "fill-color": "#2f4d6c"
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "nthu_pmtiles",
+      "source-layer": "buildings",
+      "paint": {
+        "fill-color": "#3b4252",
+        "fill-outline-color": "#4c566a"
+      }
+    },
+    {
+      "id": "streets",
+      "type": "line",
+      "source": "nthu_pmtiles",
+      "source-layer": "streets",
+      "paint": {
+        "line-color": "#81a1c1",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10,
+          0.8,
+          18,
+          4.0
+        ]
+      }
+    },
+    {
+      "id": "place-labels",
+      "type": "symbol",
+      "source": "nthu_pmtiles",
+      "source-layer": "place_labels",
+      "layout": {
+        "text-field": ["coalesce", ["get", "name"], ["get", "name_en"]],
+        "text-font": ["Open Sans Regular"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          11,
+          16,
+          15
+        ]
+      },
+      "paint": {
+        "text-color": "#e5e9f0",
+        "text-halo-color": "#262a31",
+        "text-halo-width": 1
+      }
+    }
+  ]
+}
