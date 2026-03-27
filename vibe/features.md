@@ -7,11 +7,9 @@
 
 ### TODO
 
-1. floating window “半透明”
-2. floating window 展開收合按鈕位置固定
-3. map pin改為使用 #bf616a#d08770#ebcb8b#a3be8c#88c0d0#5e81ac#b48ead
-4. 聚合pin 門檻降低（目前太多重合
-5. pin icon置中
+1. floating window 收合時只留按鈕，不應該有大框框的一部分
+2. 聚合pin 門檻降低（目前太多重合），放大應該要變成小的聚合pin（ex. 61 -> 10 + 30 + 21）**這點完全沒有進行修改**
+3. pin 大小放大！！！！！！！！！！！！ **這點也沒有修改啊**
 
 ### Note to self
 

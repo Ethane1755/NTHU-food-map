@@ -297,8 +297,8 @@ async function ensureStoreLayers(
     type: "geojson",
     data,
     cluster: true,
-    clusterRadius: 72,
-    clusterMaxZoom: 14,
+    clusterRadius: 40,
+    clusterMaxZoom: 16,
     clusterMinPoints: 2,
   });
 
@@ -312,7 +312,7 @@ async function ensureStoreLayers(
       "circle-opacity": 0.62,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#eceff4",
-      "circle-radius": ["step", ["get", "point_count"], 18, 15, 24, 50, 30, 120, 34],
+      "circle-radius": ["step", ["get", "point_count"], 36, 15, 42, 50, 48, 120, 56],
     },
   });
 
@@ -324,7 +324,7 @@ async function ensureStoreLayers(
     layout: {
       "text-field": ["get", "point_count_abbreviated"],
       "text-font": ["Noto Sans Bold"],
-      "text-size": 14,
+      "text-size": 18,
     },
     paint: {
       "text-color": "#262a31",
@@ -337,7 +337,7 @@ async function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 22,
+      "circle-radius": 44,
       "circle-color": "#eceff4",
       "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.12, 0.25],
       "circle-blur": 0.8,
@@ -350,8 +350,8 @@ async function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 16,
-      "circle-stroke-width": 2.4,
+      "circle-radius": 32,
+      "circle-stroke-width": 2.8,
       "circle-stroke-color": "#ffffff",
       "circle-color": [
         "match",
@@ -418,7 +418,7 @@ async function ensureStoreLayers(
             "store-icon-meal",
             CATEGORY_ICON_FALLBACK,
           ],
-          "icon-size": 0.8,
+          "icon-size": 1.6,
           "icon-anchor": "center",
           "icon-offset": [0, 0],
           "icon-allow-overlap": true,
@@ -452,7 +452,7 @@ async function ensureStoreLayers(
             "🍽️",
             "🍽️",
           ],
-          "text-size": 16,
+          "text-size": 32,
           "text-anchor": "center",
           "text-offset": [0, 0],
           "text-allow-overlap": true,
@@ -738,42 +738,55 @@ export default function MapClient({
         </div>
       )}
 
-      <div className="absolute right-4 top-4 z-[1110] rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/42 p-2 shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md">
-        <button
-          type="button"
-          onClick={() => setAreaPanelCollapsed((v) => !v)}
-          className="solid-light-btn flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/56 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/76"
-          aria-label={areaPanelCollapsed ? "展開區域選擇" : "收合區域選擇"}
-        >
-          {areaPanelCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-        </button>
-      </div>
+      <div className="absolute right-4 top-4 z-[1110] flex justify-end" style={{ minWidth: "176px" }}>
+        {areaPanelCollapsed ? (
+          <div className="relative w-44">
+            <button
+              type="button"
+              onClick={() => setAreaPanelCollapsed(false)}
+              className="solid-light-btn absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/60 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/82 backdrop-blur-md"
+              aria-label="展開區域選擇"
+            >
+              <ChevronDown size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="relative w-44 rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/50 p-2 text-[var(--lavender)] shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setAreaPanelCollapsed(true)}
+              className="solid-light-btn absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/60 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/82"
+              aria-label="收合區域選擇"
+            >
+              <ChevronUp size={16} />
+            </button>
 
-      {!areaPanelCollapsed && (
-        <div className="absolute right-4 top-16 z-[1100] w-44 rounded-xl border border-[var(--blue-slate)]/65 bg-[var(--jet-black)]/38 p-2 text-[var(--lavender)] shadow-[0_10px_24px_rgba(38,42,49,0.36)] backdrop-blur-md">
-          <div className="mb-1 px-1">
-            <p className="text-sm font-semibold tracking-wide text-[var(--lavender)]/90">區域選擇</p>
+            <div className="pt-11">
+              <div className="mb-1 px-1">
+                <p className="text-sm font-semibold tracking-wide text-[var(--lavender)]/90">區域選擇</p>
+              </div>
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => focusArea(AREA_1_CENTER)}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70 transition-colors"
+                >
+                  <LocateFixed size={15} />
+                  區域1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => focusArea(AREA_2_CENTER)}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70 transition-colors"
+                >
+                  <LocateFixed size={15} />
+                  區域2
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="space-y-1.5">
-            <button
-              type="button"
-              onClick={() => focusArea(AREA_1_CENTER)}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
-            >
-              <LocateFixed size={15} />
-              區域1
-            </button>
-            <button
-              type="button"
-              onClick={() => focusArea(AREA_2_CENTER)}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
-            >
-              <LocateFixed size={15} />
-              區域2
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
