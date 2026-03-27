@@ -297,9 +297,9 @@ async function ensureStoreLayers(
     type: "geojson",
     data,
     cluster: true,
-    clusterRadius: 22,
-    clusterMaxZoom: 15,
-    clusterMinPoints: 8,
+    clusterRadius: 72,
+    clusterMaxZoom: 14,
+    clusterMinPoints: 2,
   });
 
   map.addLayer({
@@ -367,18 +367,18 @@ async function ensureStoreLayers(
         "早餐",
         "#ebcb8b",
         "飲料",
-        "#4c566a",
+        "#88c0d0",
         "甜點",
         "#b48ead",
         "小吃",
-        "#434c5e",
+        "#5e81ac",
         "宵夜",
-        "#434c5e",
+        "#5e81ac",
         "素食",
         "#a3be8c",
         "日式",
         "#b48ead",
-        "#4c566a",
+        "#5e81ac",
       ],
       "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.45, 1],
     },
@@ -419,6 +419,8 @@ async function ensureStoreLayers(
             CATEGORY_ICON_FALLBACK,
           ],
           "icon-size": 0.8,
+          "icon-anchor": "center",
+          "icon-offset": [0, 0],
           "icon-allow-overlap": true,
           "icon-ignore-placement": true,
         }
@@ -451,6 +453,8 @@ async function ensureStoreLayers(
             "🍽️",
           ],
           "text-size": 16,
+          "text-anchor": "center",
+          "text-offset": [0, 0],
           "text-allow-overlap": true,
           "text-ignore-placement": true,
         },
@@ -734,42 +738,42 @@ export default function MapClient({
         </div>
       )}
 
-      <div className="absolute right-4 top-4 z-[1100] rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/58 p-2 shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md">
+      <div className="absolute right-4 top-4 z-[1110] rounded-2xl border border-[var(--blue-slate)]/70 bg-[var(--jet-black)]/42 p-2 shadow-[0_12px_28px_rgba(38,42,49,0.42)] backdrop-blur-md">
         <button
           type="button"
           onClick={() => setAreaPanelCollapsed((v) => !v)}
-          className="solid-light-btn flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/70 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]"
+          className="solid-light-btn flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--blue-slate)]/80 bg-[var(--charcoal-blue)]/56 text-[var(--alice-blue)] shadow-[0_8px_18px_rgba(38,42,49,0.34)] hover:bg-[var(--charcoal-blue)]/76"
           aria-label={areaPanelCollapsed ? "展開區域選擇" : "收合區域選擇"}
         >
           {areaPanelCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
         </button>
-
-        {!areaPanelCollapsed && (
-          <div className="mt-2 w-44 rounded-xl border border-[var(--blue-slate)]/65 bg-[var(--jet-black)]/52 p-2 text-[var(--lavender)] backdrop-blur-sm">
-            <div className="mb-1 px-1">
-              <p className="text-sm font-semibold tracking-wide text-[var(--lavender)]/90">區域選擇</p>
-            </div>
-            <div className="space-y-1.5">
-              <button
-                type="button"
-                onClick={() => focusArea(AREA_1_CENTER)}
-                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
-              >
-                <LocateFixed size={15} />
-                區域1
-              </button>
-              <button
-                type="button"
-                onClick={() => focusArea(AREA_2_CENTER)}
-                className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
-              >
-                <LocateFixed size={15} />
-                區域2
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {!areaPanelCollapsed && (
+        <div className="absolute right-4 top-16 z-[1100] w-44 rounded-xl border border-[var(--blue-slate)]/65 bg-[var(--jet-black)]/38 p-2 text-[var(--lavender)] shadow-[0_10px_24px_rgba(38,42,49,0.36)] backdrop-blur-md">
+          <div className="mb-1 px-1">
+            <p className="text-sm font-semibold tracking-wide text-[var(--lavender)]/90">區域選擇</p>
+          </div>
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => focusArea(AREA_1_CENTER)}
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
+            >
+              <LocateFixed size={15} />
+              區域1
+            </button>
+            <button
+              type="button"
+              onClick={() => focusArea(AREA_2_CENTER)}
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--alice-blue)] hover:bg-[var(--charcoal-blue)]/70"
+            >
+              <LocateFixed size={15} />
+              區域2
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

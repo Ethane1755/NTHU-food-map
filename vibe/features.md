@@ -7,8 +7,11 @@
 
 ### TODO
 
-1. 
-
+1. floating window “半透明”
+2. floating window 展開收合按鈕位置固定
+3. map pin改為使用 #bf616a#d08770#ebcb8b#a3be8c#88c0d0#5e81ac#b48ead
+4. 聚合pin 門檻降低（目前太多重合
+5. pin icon置中
 
 ### Note to self
 
