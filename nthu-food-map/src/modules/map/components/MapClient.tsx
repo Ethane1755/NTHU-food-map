@@ -329,7 +329,7 @@ function ensureStoreLayers(
     },
   });
 
-  const handleStoreClick = (event: maplibregl.MapMouseEvent & maplibregl.EventData) => {
+  const handleStoreClick = (event: maplibregl.MapLayerMouseEvent) => {
     const feature = event.features?.[0];
     if (!feature) return;
     const coordinates = (feature.geometry as Point).coordinates;
