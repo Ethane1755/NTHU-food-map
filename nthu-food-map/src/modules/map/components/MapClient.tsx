@@ -287,6 +287,12 @@ async function ensureStoreLayers(
 
   const categoryIconsReady = await ensureCategoryPinIcons(map);
 
+  const existingAfterIconLoad = map.getSource(STORE_SOURCE_ID) as maplibregl.GeoJSONSource | undefined;
+  if (existingAfterIconLoad) {
+    existingAfterIconLoad.setData(data);
+    return;
+  }
+
   map.addSource(STORE_SOURCE_ID, {
     type: "geojson",
     data,
