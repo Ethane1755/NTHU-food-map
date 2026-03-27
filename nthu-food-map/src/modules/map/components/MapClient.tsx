@@ -266,7 +266,7 @@ function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 17,
+      "circle-radius": 19,
       "circle-color": "#eceff4",
       "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.12, 0.25],
       "circle-blur": 0.8,
@@ -279,7 +279,7 @@ function ensureStoreLayers(
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 12.5,
+      "circle-radius": 14,
       "circle-stroke-width": 2.4,
       "circle-stroke-color": "#ffffff",
       "circle-color": [
@@ -320,7 +320,7 @@ function ensureStoreLayers(
     filter: ["!", ["has", "point_count"]],
     layout: {
       "text-field": "📍",
-      "text-size": 15,
+      "text-size": 17,
       "text-allow-overlap": true,
       "text-ignore-placement": true,
     },
