@@ -23,14 +23,16 @@ type StoreProperties = {
   openNow: "open" | "closed";
 };
 
-const UNIFIED_FLYTO_ZOOM = 19;
+const UNIFIED_FLYTO_ZOOM = 17;
 const AREA_1_CENTER: [number, number] = [24.797725784185676, 120.99771371419024];
 const AREA_2_CENTER: [number, number] = [24.792979725489644, 120.99379987883572];
 const AREA_FOCUS_ZOOM = 17;
 const STORE_SOURCE_ID = "stores-source";
 const CLUSTER_LAYER_ID = "stores-clusters";
 const CLUSTER_COUNT_LAYER_ID = "stores-cluster-count";
+const STORE_HALO_LAYER_ID = "stores-halo";
 const STORE_LAYER_ID = "stores-unclustered";
+const STORE_PIN_ICON_LAYER_ID = "stores-pin-icon";
 const PMTILES_STYLE_LIGHT = process.env.NEXT_PUBLIC_MAP_STYLE_LIGHT_URL?.trim();
 const PMTILES_STYLE_DARK = process.env.NEXT_PUBLIC_MAP_STYLE_DARK_URL?.trim();
 const PMTILES_URL = process.env.NEXT_PUBLIC_PM_TILES_URL?.trim();
@@ -110,9 +112,63 @@ function buildPmtilesFallbackStyle(isLightMode: boolean): maplibregl.StyleSpecif
         type: "line",
         source: "nthu_pmtiles",
         "source-layer": "streets",
+        minzoom: 12,
         paint: {
-          "line-color": isLightMode ? "#9fb2c9" : "#81a1c1",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.8, 18, 3.5],
+          "line-color": isLightMode ? "#8ea7c2" : "#7089a1",
+          "line-opacity": isLightMode ? 0.42 : 0.38,
+          "line-width": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10,
+            [
+              "match",
+              ["get", "kind"],
+              ["motorway", "trunk", "primary"],
+              0.6,
+              ["secondary", "tertiary"],
+              0.45,
+              ["residential", "living_street", "service"],
+              0.3,
+              ["pedestrian", "footway", "path", "steps", "cycleway"],
+              0.16,
+              0.22,
+            ],
+            18,
+            [
+              "match",
+              ["get", "kind"],
+              ["motorway", "trunk", "primary"],
+              2.2,
+              ["secondary", "tertiary"],
+              1.6,
+              ["residential", "living_street", "service"],
+              1.1,
+              ["pedestrian", "footway", "path", "steps", "cycleway"],
+              0.6,
+              0.9,
+            ],
+          ],
+        },
+      },
+      {
+        id: "street-labels",
+        type: "symbol",
+        source: "nthu_pmtiles",
+        "source-layer": "street_labels",
+        minzoom: 14,
+        layout: {
+          "symbol-placement": "line",
+          "text-field": ["coalesce", ["get", "name"], ["get", "name_en"]],
+          "text-font": ["Open Sans Regular"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 14, 9.5, 18, 11.5],
+          "symbol-spacing": 360,
+        },
+        paint: {
+          "text-color": isLightMode ? "#53657d" : "#b3c6d9",
+          "text-halo-color": isLightMode ? "#ffffff" : "#262a31",
+          "text-halo-width": 1,
+          "text-opacity": isLightMode ? 0.72 : 0.74,
         },
       },
       {
@@ -123,6 +179,7 @@ function buildPmtilesFallbackStyle(isLightMode: boolean): maplibregl.StyleSpecif
         paint: {
           "fill-color": isLightMode ? "#dfe5ee" : "#3b4252",
           "fill-outline-color": isLightMode ? "#cfd6e0" : "#4c566a",
+          "fill-opacity": isLightMode ? 0.35 : 0.3,
         },
       },
       {
@@ -130,15 +187,17 @@ function buildPmtilesFallbackStyle(isLightMode: boolean): maplibregl.StyleSpecif
         type: "symbol",
         source: "nthu_pmtiles",
         "source-layer": "place_labels",
+        minzoom: 12,
         layout: {
           "text-field": ["coalesce", ["get", "name"], ["get", "name_en"]],
           "text-font": ["Open Sans Regular"],
-          "text-size": ["interpolate", ["linear"], ["zoom"], 8, 11, 16, 15],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 8, 10, 16, 13],
         },
         paint: {
           "text-color": isLightMode ? "#2f3746" : "#e5e9f0",
           "text-halo-color": isLightMode ? "#ffffff" : "#262a31",
           "text-halo-width": 1,
+          "text-opacity": isLightMode ? 0.82 : 0.84,
         },
       },
     ],
@@ -167,8 +226,9 @@ function ensureStoreLayers(
     type: "geojson",
     data,
     cluster: true,
-    clusterRadius: 64,
-    clusterMaxZoom: 17,
+    clusterRadius: 22,
+    clusterMaxZoom: 15,
+    clusterMinPoints: 8,
   });
 
   map.addLayer({
@@ -178,7 +238,7 @@ function ensureStoreLayers(
     filter: ["has", "point_count"],
     paint: {
       "circle-color": "#d8dee9",
-      "circle-opacity": 0.74,
+      "circle-opacity": 0.62,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#eceff4",
       "circle-radius": ["step", ["get", "point_count"], 18, 15, 24, 50, 30, 120, 34],
@@ -201,14 +261,27 @@ function ensureStoreLayers(
   });
 
   map.addLayer({
+    id: STORE_HALO_LAYER_ID,
+    type: "circle",
+    source: STORE_SOURCE_ID,
+    filter: ["!", ["has", "point_count"]],
+    paint: {
+      "circle-radius": 17,
+      "circle-color": "#eceff4",
+      "circle-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.12, 0.25],
+      "circle-blur": 0.8,
+    },
+  });
+
+  map.addLayer({
     id: STORE_LAYER_ID,
     type: "circle",
     source: STORE_SOURCE_ID,
     filter: ["!", ["has", "point_count"]],
     paint: {
-      "circle-radius": 11,
-      "circle-stroke-width": 2,
-      "circle-stroke-color": "#eceff4",
+      "circle-radius": 12.5,
+      "circle-stroke-width": 2.4,
+      "circle-stroke-color": "#ffffff",
       "circle-color": [
         "match",
         ["get", "category"],
@@ -240,6 +313,32 @@ function ensureStoreLayers(
     },
   });
 
+  map.addLayer({
+    id: STORE_PIN_ICON_LAYER_ID,
+    type: "symbol",
+    source: STORE_SOURCE_ID,
+    filter: ["!", ["has", "point_count"]],
+    layout: {
+      "text-field": "📍",
+      "text-size": 15,
+      "text-allow-overlap": true,
+      "text-ignore-placement": true,
+    },
+    paint: {
+      "text-opacity": ["case", ["==", ["get", "openNow"], "closed"], 0.55, 0.95],
+    },
+  });
+
+  const handleStoreClick = (event: maplibregl.MapMouseEvent & maplibregl.EventData) => {
+    const feature = event.features?.[0];
+    if (!feature) return;
+    const coordinates = (feature.geometry as Point).coordinates;
+    const storeId = String(feature.properties?.storeId ?? "");
+    if (!storeId) return;
+    map.easeTo({ center: [coordinates[0], coordinates[1]], zoom: UNIFIED_FLYTO_ZOOM, duration: 360 });
+    onStoreSelect(storeId);
+  };
+
   map.on("click", CLUSTER_LAYER_ID, async (event) => {
     const feature = event.features?.[0];
     if (!feature) return;
@@ -256,15 +355,8 @@ function ensureStoreLayers(
     }
   });
 
-  map.on("click", STORE_LAYER_ID, (event) => {
-    const feature = event.features?.[0];
-    if (!feature) return;
-    const coordinates = (feature.geometry as Point).coordinates;
-    const storeId = String(feature.properties?.storeId ?? "");
-    if (!storeId) return;
-    map.easeTo({ center: [coordinates[0], coordinates[1]], zoom: UNIFIED_FLYTO_ZOOM, duration: 360 });
-    onStoreSelect(storeId);
-  });
+  map.on("click", STORE_LAYER_ID, handleStoreClick);
+  map.on("click", STORE_PIN_ICON_LAYER_ID, handleStoreClick);
 
   map.on("mouseenter", CLUSTER_LAYER_ID, () => {
     map.getCanvas().style.cursor = "pointer";
@@ -276,6 +368,12 @@ function ensureStoreLayers(
     map.getCanvas().style.cursor = "pointer";
   });
   map.on("mouseleave", STORE_LAYER_ID, () => {
+    map.getCanvas().style.cursor = "";
+  });
+  map.on("mouseenter", STORE_PIN_ICON_LAYER_ID, () => {
+    map.getCanvas().style.cursor = "pointer";
+  });
+  map.on("mouseleave", STORE_PIN_ICON_LAYER_ID, () => {
     map.getCanvas().style.cursor = "";
   });
 }
@@ -376,8 +474,10 @@ export default function MapClient({
         container: mapRef.current,
         style: resolveMapStyle(document.documentElement.classList.contains("theme-light")),
         center: [120.9964, 24.7963],
-        zoom: 15,
+        zoom: 14.6,
         maxZoom: 20,
+        fadeDuration: 0,
+        refreshExpiredTiles: false,
       });
 
       if (destroyed) {

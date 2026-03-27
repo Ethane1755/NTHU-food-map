@@ -50,7 +50,8 @@
       "source-layer": "buildings",
       "paint": {
         "fill-color": "#dfe5ee",
-        "fill-outline-color": "#cfd6e0"
+        "fill-outline-color": "#cfd6e0",
+        "fill-opacity": 0.35
       }
     },
     {
@@ -58,17 +59,71 @@
       "type": "line",
       "source": "nthu_pmtiles",
       "source-layer": "streets",
+      "minzoom": 12,
       "paint": {
-        "line-color": "#9fb2c9",
+        "line-color": "#8ea7c2",
+        "line-opacity": 0.42,
         "line-width": [
           "interpolate",
           ["linear"],
           ["zoom"],
           10,
-          0.8,
+          [
+            "match",
+            ["get", "kind"],
+            ["motorway", "trunk", "primary"],
+            0.6,
+            ["secondary", "tertiary"],
+            0.45,
+            ["residential", "living_street", "service"],
+            0.3,
+            ["pedestrian", "footway", "path", "steps", "cycleway"],
+            0.16,
+            0.22
+          ],
           18,
-          4.0
+          [
+            "match",
+            ["get", "kind"],
+            ["motorway", "trunk", "primary"],
+            2.2,
+            ["secondary", "tertiary"],
+            1.6,
+            ["residential", "living_street", "service"],
+            1.1,
+            ["pedestrian", "footway", "path", "steps", "cycleway"],
+            0.6,
+            0.9
+          ]
         ]
+      }
+    },
+    {
+      "id": "street-labels",
+      "type": "symbol",
+      "source": "nthu_pmtiles",
+      "source-layer": "street_labels",
+      "minzoom": 14,
+      "layout": {
+        "symbol-placement": "line",
+        "text-field": ["coalesce", ["get", "name"], ["get", "name_en"]],
+        "text-font": ["Open Sans Regular"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          14,
+          9.5,
+          18,
+          11.5
+        ],
+        "symbol-spacing": 360
+      },
+      "paint": {
+        "text-color": "#53657d",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1,
+        "text-opacity": 0.72
       }
     },
     {
@@ -76,6 +131,7 @@
       "type": "symbol",
       "source": "nthu_pmtiles",
       "source-layer": "place_labels",
+      "minzoom": 12,
       "layout": {
         "text-field": ["coalesce", ["get", "name"], ["get", "name_en"]],
         "text-font": ["Open Sans Regular"],
@@ -84,15 +140,16 @@
           ["linear"],
           ["zoom"],
           8,
-          11,
+          10,
           16,
-          15
+          13
         ]
       },
       "paint": {
         "text-color": "#2f3746",
         "text-halo-color": "#ffffff",
-        "text-halo-width": 1
+        "text-halo-width": 1,
+        "text-opacity": 0.82
       }
     }
   ]
